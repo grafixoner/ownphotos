@@ -1571,30 +1571,35 @@ class SetFacePersonLabel(APIView):
 
 class DeletePhotos(APIView):
     def post(self, request, format=None):
+        console.log(request.data)
         data = dict(request.data)
-        val_hidden = data['hidden']
+        val_deleted = data['deleted']
         image_hashes = data['image_hashes']
 
-        deleted = []
-        not_deleted = []
+        updated = []
+        not_updated = []
         for image_hash in image_hashes:
             try:
                 photo = Photo.objects.get(image_hash=image_hash)
             except Photo.DoesNotExist:
                 logger.warning("Could not set photo {} to hidden. It does not exist.".format(image_hash))
                 continue
-            if photo.owner == request.user and photo.hidden != val_hidden:
-                deleted.append(photo.id)
-                photo.delete()
+            if photo.owner == request.user and photo.deleted != val_deleted:
+                photo.deleted = val_deleted
+                photo.save()
+                updated.append(PhotoSerializer(photo).data)
             else:
                 not_updated.append(PhotoSerializer(photo).data)
-        logger.info("{} photos were deleted. {} photos were already Deleted.".format(len(updated),len(not_updated)))
-        
+
+        if val_deleted:
+            logger.info("{} photos were deleted. {} photos were already deleted.".format(len(updated),len(not_updated)))
+        else:
+            logger.info("{} photos were undeleted. {} photos were already undeleted.".format(len(updated),len(not_updated)))
         return Response({
             'status': True,
-            'results': deleted,
-            'deleted': deleted,
-            'not_deleted': not_deleted
+            'results': updated,
+            'updated': updated,
+            'not_updated': not_updated
         })
 
 class DeleteFaces(APIView):
