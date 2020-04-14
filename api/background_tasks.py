@@ -4,9 +4,9 @@ from tqdm import tqdm
 
 def generate_captions(overwrite=False):
     if overwrite:
-        photos = Photo.objects.all()
+        photos = Photo.objects.filter(deleted=False)
     else:
-        photos = Photo.objects.filter(search_captions=None)
+        photos = Photo.objects.filter(deleted=False).filter(search_captions=None)
     logger.info('%d photos to be processed for caption generation'%photos.count())
     for photo in photos:
         logger.info('generating captions for %s'%photo.image_path)
@@ -15,9 +15,9 @@ def generate_captions(overwrite=False):
 
 def geolocate(overwrite=False):
     if overwrite:
-        photos = Photo.objects.all()
+        photos = Photo.objects.filter(deleted=False)
     else:   
-        photos = Photo.objects.filter(geolocation_json={})
+        photos = Photo.objects.filter(deleted=False).filter(geolocation_json={})
     logger.info('%d photos to be geolocated'%photos.count())
     for photo in photos:
         try:
@@ -34,6 +34,6 @@ def regenerate_event_title():
         event.save()
 
 def add_photos_to_album_things():
-    photos = Photo.objects.all()
+    photos = Photo.objects.filter(deleted=False)
     for photo in tqdm(photos):
         photo._add_to_album_place()

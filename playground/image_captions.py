@@ -8,7 +8,7 @@ from api.models import Photo
 import ipdb
 from io import StringIO
 
-photos = Photo.objects.all()
+photos = Photo.objects.filter(deleted=False)
 
 captions = []
 

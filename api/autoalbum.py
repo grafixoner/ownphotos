@@ -92,7 +92,7 @@ def generate_event_albums(user):
 
 
     try:
-        photos = Photo.objects.filter(owner=user).only('exif_timestamp')
+        photos = Photo.objects.filter(deleted=False).filter(owner=user).only('exif_timestamp')
 
         photos_with_timestamp = [(photo.exif_timestamp, photo)
                                  for photo in photos if photo.exif_timestamp]

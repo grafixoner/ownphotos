@@ -67,7 +67,7 @@ def jump_by_month(start_date, end_date, month_step=1):
 
 def get_location_timeline(user):
     qs_photos = Photo.objects.exclude(geolocation_json={}).exclude(
-        exif_timestamp=None).filter(owner=user).order_by('exif_timestamp')
+        exif_timestamp=None).filter(owner=user).filter(deleted=False).order_by('exif_timestamp')
     photos = qs_photos.all()
     timestamp_loc = [(p.exif_timestamp,
                       p.geolocation_json['features'][-1]['text'])
@@ -209,7 +209,7 @@ def get_search_term_examples(user):
 
 
 def get_count_stats(user):
-    num_photos = Photo.objects.filter(owner=user).count()
+    num_photos = Photo.objects.filter(deleted=False).filter(owner=user).count()
     num_faces = Face.objects.filter(photo__owner=user).count()
     num_unknown_faces = Face.objects.filter(
         Q(person__name__exact='unknown') & Q(photo__owner=user)).count()
@@ -239,7 +239,7 @@ def get_count_stats(user):
 
 def get_location_clusters(user):
     start = datetime.now()
-    photos = Photo.objects.filter(owner=user).exclude(geolocation_json={})
+    photos = Photo.objects.filter(deleted=False).filter(owner=user).exclude(geolocation_json={})
 
     level = -3
     coord_names = []
@@ -289,7 +289,7 @@ def get_location_clusters(user):
 
 
 def get_photo_country_counts(user):
-    photos_with_gps = Photo.objects.exclude(geolocation_json=None).filter(owner=user)
+    photos_with_gps = Photo.objects.filter(deleted=False).exclude(geolocation_json=None).filter(owner=user)
     geolocations = [p.geolocation_json for p in photos_with_gps]
     # countries = [gl['features'][0]['properties']['country'] for gl in geolocations if 'features' in gl.keys() and len(gl['features']) > 0]
     countries = []
@@ -306,7 +306,7 @@ def get_photo_country_counts(user):
 
 def get_location_sunburst(user):
     photos_with_gps = Photo.objects.exclude(geolocation_json={}).exclude(
-        geolocation_json=None).filter(owner=user)
+        geolocation_json=None).filter(deleted=False).filter(owner=user)
 
     if photos_with_gps.count() == 0:
         return {'children':[]}
@@ -370,6 +370,7 @@ def get_location_sunburst(user):
 def get_photo_month_counts(user):
     counts = Photo.objects \
         .filter(owner=user) \
+        .filter(deleted=False) \
         .exclude(exif_timestamp=None) \
         .annotate(month=TruncMonth('exif_timestamp')) \
         .values('month') \
@@ -426,7 +427,7 @@ captions_sw = [
 
 
 def get_searchterms_wordcloud(user):
-    photos = Photo.objects.filter(owner=user).prefetch_related('faces__person')
+    photos = Photo.objects.filter(deleted=False).filter(owner=user).prefetch_related('faces__person')
     captions = []
     locations = []
     people = []

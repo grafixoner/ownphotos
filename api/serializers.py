@@ -501,7 +501,7 @@ class AlbumPersonListSerializer(serializers.ModelSerializer):
 class AlbumUserEditSerializer(serializers.ModelSerializer):
     #     photos = PhotoHashListSerializer(many=True, read_only=False)
     photos = serializers.PrimaryKeyRelatedField(
-        many=True, read_only=False, queryset=Photo.objects.all())
+        many=True, read_only=False, queryset=Photo.objects.filter(deleted=False))
 
     class Meta:
         model = AlbumUser
@@ -738,14 +738,14 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
     def get_photo_count(self, obj):
-        return Photo.objects.filter(owner=obj).count()
+        return Photo.objects.filter(owner=obj).filter(deleted=False).count()
 
     def get_public_photo_count(self, obj):
-        return Photo.objects.filter(Q(owner=obj) & Q(public=True)).count()
+        return Photo.objects.filter(deleted=False).filter(Q(owner=obj) & Q(public=True)).count()
 
     def get_public_photo_samples(self, obj):
         return PhotoSuperSimpleSerializer(
-            Photo.objects.filter(Q(owner=obj) & Q(public=True))[:10],
+            Photo.objects.filter(deleted=False).filter(Q(owner=obj) & Q(public=True))[:10],
             many=True).data
 
 
@@ -763,7 +763,7 @@ class ManageUserSerializer(serializers.ModelSerializer):
         }
 
     def get_photo_count(self, obj):
-        return Photo.objects.filter(owner=obj).count()
+        return Photo.objects.filter(deleted=False).filter(owner=obj).count()
 
     def update(self, instance, validated_data):
         if 'scan_directory' in validated_data:
