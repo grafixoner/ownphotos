@@ -135,6 +135,7 @@ class Photo(models.Model):
 
     favorited = models.BooleanField(default=False, db_index=True)
     hidden = models.BooleanField(default=False, db_index=True)
+    deleted = models.BooleanField(default=False, db_index=True)
 
     owner = models.ForeignKey(
         User, on_delete=models.SET(get_deleted_user), default=None)
@@ -633,7 +634,7 @@ class Person(models.Model):
             self.faces.prefetch_related(
                 Prefetch(
                     'photo',
-                    queryset=Photo.objects.exclude(image_hash=None).filter(
+                    queryset=Photo.objects.exclude(image_hash=None, deleted=True).filter(
                         owner=owner).order_by('-exif_timestamp').only(
                             'image_hash', 'exif_timestamp', 'favorited',
                             'owner__id', 'public',
