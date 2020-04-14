@@ -1569,6 +1569,33 @@ class SetFacePersonLabel(APIView):
         })
         # ipdb.set_trace()
 
+class DeletePhotos(APIView):
+    def post(self, request, format=None):
+        data = dict(request.data)
+        val_hidden = data['hidden']
+        image_hashes = data['image_hashes']
+
+        deleted = []
+        not_deleted = []
+        for image_hash in image_hashes:
+            try:
+                photo = Photo.objects.get(image_hash=image_hash)
+            except Photo.DoesNotExist:
+                logger.warning("Could not set photo {} to hidden. It does not exist.".format(image_hash))
+                continue
+            if photo.owner == request.user and photo.hidden != val_hidden:
+                deleted.append(photo.id)
+                photo.delete()
+            else:
+                not_updated.append(PhotoSerializer(photo).data)
+        logger.info("{} photos were deleted. {} photos were already Deleted.".format(len(updated),len(not_updated)))
+        
+        return Response({
+            'status': True,
+            'results': deleted,
+            'deleted': deleted,
+            'not_deleted': not_deleted
+        })
 
 class DeleteFaces(APIView):
     def post(self, request, format=None):
