@@ -27,7 +27,7 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 class PhotoEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ('image_hash', 'hidden', 'favorited')
+        fields = ('image_hash', 'hidden', 'favorited', 'deleted')
 
     def update(self, instance, validated_data):
         ipdb.set_trace()
@@ -46,6 +46,7 @@ class PhotoSuperSimpleSerializer(serializers.ModelSerializer):
             'image_hash',
             'favorited',
             'hidden',
+            'deleted',
             'exif_timestamp',
             'public',
         )
@@ -55,7 +56,7 @@ class PhotoSuperSimpleSerializerWithAddedOn(serializers.ModelSerializer):
     class Meta:
         model = Photo
         fields = ('image_hash', 'favorited', 'hidden', 'exif_timestamp',
-                  'public', 'added_on')
+                  'public', 'added_on','deleted')
 
 
 class PhotoSimpleSerializer(serializers.ModelSerializer):
@@ -72,6 +73,7 @@ class PhotoSimpleSerializer(serializers.ModelSerializer):
             'favorited',
             'geolocation_json',
             'public',
+            'deleted'
         )
 
 
@@ -103,7 +105,7 @@ class PhotoSerializer(serializers.ModelSerializer):
                   'small_square_thumbnail_url', 'tiny_square_thumbnail_url',
                   'geolocation_json', 'exif_json', 'people', 'image_url',
                   'image_hash', 'image_path', 'favorited', 'hidden', 'public',
-                  'shared_to', 'similar_photos')
+                  'shared_to', 'similar_photos','deleted')
 
     def get_similar_photos(self, obj):
         res = search_similar_image(obj.owner,obj)
@@ -782,7 +784,7 @@ class SharedToMePhotoSuperSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
         fields = ('image_hash', 'favorited', 'hidden', 'exif_timestamp',
-                  'public', 'owner')
+                  'public', 'owner','deleted')
 
 
 class SharedPhotoSuperSimpleSerializer(serializers.ModelSerializer):
@@ -793,7 +795,7 @@ class SharedPhotoSuperSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
         fields = ('image_hash', 'favorited', 'hidden', 'exif_timestamp',
-                  'public', 'owner', 'shared_to')
+                  'public', 'owner', 'shared_to', 'deleted')
 
 
 class SharedFromMePhotoThroughSerializer(serializers.ModelSerializer):
