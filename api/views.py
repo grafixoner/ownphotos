@@ -1571,7 +1571,6 @@ class SetFacePersonLabel(APIView):
 
 class DeletePhotos(APIView):
     def post(self, request, format=None):
-        console.log(request.data)
         data = dict(request.data)
         val_deleted = data['deleted']
         image_hashes = data['image_hashes']
